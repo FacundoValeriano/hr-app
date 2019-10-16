@@ -123,6 +123,7 @@ import { Globals } from './app-globals/globals';
 import { NumbersOnlyDirective } from './directives/numbersOnlyDirective';
 import { LocationsComponent } from './locations/locations.component';
 import { ProfilesComponent } from './profiles/profiles.component';
+import { EmailSenderService } from './services/email-sender.service';
 
 
 
@@ -298,6 +299,7 @@ const icons: IconDefinition[] = Object.keys(antDesignIcons).map(key => antDesign
     OfficeService,
     RoleService,
     CompanyCalendarService,
+    EmailSenderService,
     // MatDatepickerModule,
     // MatNativeDateModule,
     { provide: NZ_I18N, useValue: en_US }

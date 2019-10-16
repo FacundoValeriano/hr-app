@@ -118,6 +118,7 @@ namespace DependencyInjection
             services.AddTransient<IRoleService, RoleService>();
             services.AddTransient<ICompanyCalendarService, CompanyCalendarService>();
             services.AddTransient<IGoogleCalendarService, GoogleCalendarService>();
+            services.AddTransient<IEmailSenderService, EmailSenderService>();
 
         }
 

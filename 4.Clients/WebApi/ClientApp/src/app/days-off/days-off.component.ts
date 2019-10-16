@@ -8,6 +8,7 @@ import { AppComponent } from '../app.component';
 import { Employee } from 'src/entities/employee';
 import { EmployeeService } from 'src/app/services/employee.service'
 import { DaysOffService } from '../services/days-off.service';
+import { EmailSenderService } from '../services/email-sender.service';
 import * as  differenceInCalendarDays from 'date-fns/difference_in_calendar_days';
 import { User } from 'src/entities/user';
 import { Globals } from '../app-globals/globals';
@@ -45,12 +46,14 @@ export class DaysOffComponent implements OnInit {
     private app: AppComponent,
     private daysOffService: DaysOffService,
     private employeeService: EmployeeService,
+    private emailSenderService: EmailSenderService,
     private globals: Globals) {
     this.reasons = globals.daysOffTypeList;
     this.statusList = globals.daysOffStatusList;
   }
 
   ngOnInit() {
+
     this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
     this.isHr = this.currentUser.Role === 'Admin';
     this.employeeService.GetByEmail(this.currentUser.Email)
@@ -130,6 +133,8 @@ export class DaysOffComponent implements OnInit {
 
   showAddModal(modalContent: TemplateRef<{}>): void {
     this.resetForm();
+    console.log(this.listOfDisplayData[2]);
+
     const modal = this.facade.modalService.create({
       nzTitle: 'Add new day off',
       nzContent: modalContent,
@@ -184,6 +189,13 @@ export class DaysOffComponent implements OnInit {
                             if (err.message != undefined) this.facade.toastrService.error(err.message);
                             else this.facade.toastrService.error("The service is not available now. Try again later.");
                           })
+                        this.emailSenderService.sendMail(newDayOff)
+                          .subscribe(res => {
+                            this.facade.toastrService.success("An E-mail was sent to the employee informing him of the status of his request.");
+                          }, err => {
+                            if (err.message != undefined) this.facade.toastrService.error(err.message);
+                            else this.facade.toastrService.error("The email couldn't be sent. Please try again later.");
+                          });
                       }
                       // else modal.nzFooter[1].loading = false;
                       // this.app.hideLoading();
@@ -200,6 +212,7 @@ export class DaysOffComponent implements OnInit {
     //Edit Consultant Modal
     this.resetForm();
     let editedDayOff: DaysOff = this.listOfDaysOff.filter(_ => _.id === id)[0];
+    let previousStatus: any = editedDayOff.status;
 
     this.fillForm(editedDayOff);
 
@@ -263,7 +276,17 @@ export class DaysOffComponent implements OnInit {
                     // modal.nzFooter[1].loading = false;
                     if (err.message !== undefined) { this.facade.toastrService.error(err.message); }
                     else { this.facade.toastrService.error('The service is not available now. Try again later.'); }
-                  })
+                  });
+                if (previousStatus != editedDayOff.status) {
+                  this.emailSenderService.sendMail(editedDayOff)
+                  .subscribe(res => {
+                    this.facade.toastrService.success("An E-mail was sent to the employee informing him of the new status of his request.");
+                  }, err => {
+                    if (err.message != undefined) this.facade.toastrService.error(err.message);
+                    else this.facade.toastrService.error("The email couldn't be sent. Please try again later.");
+                  });
+                }
+
               }
               // else modal.nzFooter[1].loading = false;
               // this.app.hideLoading();
