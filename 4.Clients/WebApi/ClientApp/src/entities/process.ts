@@ -8,12 +8,14 @@ import { TechnicalStage } from './technical-stage';
 import { ClientStage } from './client-stage';
 import { OfferStage } from './offer-stage';
 import { EnglishLevelEnum } from './enums/english-level.enum';
+import { ProcessCurrentStageEnum } from './enums/process-current-stage';
 
 export class Process {
     id: number;
     startDate: Date;
     endDate: Date;
     status: ProcessStatusEnum;
+    currentStage: ProcessCurrentStageEnum;
     candidateId: number;
     candidate: Candidate;
     consultantOwnerId: number;

@@ -63,6 +63,20 @@
                             </div>
                         </nz-dropdown>
                     </th>
+                    <th nzCustomFilter>Current Stage
+                        <nz-dropdown nzTrigger="click" nzPlacement="bottomRight" [nzClickHide]="false" nzTableFilter #currentStageDropdown>
+                            <i nz-icon nzType="search" class="ant-table-filter-icon" [class.ant-table-filter-open]="currentStageDropdown.nzVisible" nz-dropdown></i>
+                            <div class="search-box">
+                                <nz-select placeholder="Search stage" [(ngModel)]="searchValueCurrentStage" style="width: 100%; margin-bottom: 2%;">
+                                    <nz-option *ngFor="let cs of currentStageList" nzLabel="{{cs.name}}" [nzValue]="cs.id">
+                                    </nz-option>
+                                </nz-select>
+                                <br />
+                                <button nz-button nzSize="small" nzType="primary" (click)="searchStatus()" class="search-button">Search</button>
+                                <button nz-button nzSize="small" (click)="resetStatus()">Reset</button>
+                            </div>
+                        </nz-dropdown>
+                    </th>
                     <th [style.text-align]="center">Interviewer</th>
                     <th [style.text-align]="center">Actions</th>
                 </tr>
@@ -83,6 +97,10 @@
                     <td scope="row">
                         <nz-badge [nzStatus]="getStatusColor(process.status)" style="margin-right: 3%; margin-top: -2%;"></nz-badge>
                         {{ getStatus(process.status) }}
+                    </td>
+                    <td scope="row">
+                        <nz-badge style="margin-right: 3%; margin-top: -2%;"></nz-badge>
+                        {{ getCurrentStage(process.currentStage) }}
                     </td>
                     <td scope="row"><a *ngIf="process.consultantOwner" style="color: #1890ff;" (click)="showConsultantDetailsModal(process.consultantOwner.id, consultantDetailModal)">{{ process.consultantOwner.name }}
                             {{ process.consultantOwner.lastName }}</a></td>

@@ -111,6 +111,7 @@ namespace Domain.Services.Impl.Services
             this.AddCommunityToCandidate(process.Candidate, createProcessContract.Candidate.Community);
             this.AddCandidateProfileToCandidate(process.Candidate, createProcessContract.Candidate.Profile);
             this.AddOfficeToCandidate(process.Candidate, createProcessContract.Candidate.PreferredOfficeId);
+            process.CurrentStage = SetProcessCurrentStage(process);
             var createdProcess = _processRepository.Create(process);
 
             _unitOfWork.Complete();
@@ -162,6 +163,7 @@ namespace Domain.Services.Impl.Services
         {
             var process = _mapper.Map<Process>(updateProcessContract);
             process.Status = SetProcessStatus(process);
+            process.CurrentStage = SetProcessCurrentStage(process);
             process.Candidate.EnglishLevel = process.HrStage.EnglishLevel;
             process.Candidate.Status = SetCandidateStatus(process.Status);
             var updatedCandidate = _candidateRepository.Update(process.Candidate);
@@ -282,6 +284,51 @@ namespace Domain.Services.Impl.Services
                     return CandidateStatus.InProgress;
                 default:
                     return CandidateStatus.New;
+            }
+        }
+
+        public ProcessCurrentStage SetProcessCurrentStage(Process process)
+        {
+            switch (process.HrStage.Status)
+            {
+                case StageStatus.NA:
+                    return ProcessCurrentStage.NA;
+                case StageStatus.InProgress:
+                    return ProcessCurrentStage.HrStage;
+                case StageStatus.Accepted:
+                    switch (process.TechnicalStage.Status)
+                    {
+                        case StageStatus.NA:
+                            return ProcessCurrentStage.TechnicalStage;
+                        case StageStatus.InProgress:
+                            return ProcessCurrentStage.TechnicalStage;
+                        case StageStatus.Accepted:
+                            switch (process.ClientStage.Status)
+                            {
+                                case StageStatus.NA:
+                                    return ProcessCurrentStage.ClientStage;
+                                case StageStatus.InProgress:
+                                    return ProcessCurrentStage.ClientStage;
+                                case StageStatus.Accepted:
+                                    switch (process.OfferStage.Status)
+                                    {
+                                        case StageStatus.NA:
+                                            return ProcessCurrentStage.OfferStage;
+                                        case StageStatus.InProgress:
+                                            return ProcessCurrentStage.OfferStage;
+                                        case StageStatus.Accepted:
+                                            return ProcessCurrentStage.OfferStage;
+                                        default:
+                                            return ProcessCurrentStage.Finished;
+                                    }
+                                default:
+                                    return ProcessCurrentStage.Finished;
+                            }
+                        default:
+                            return ProcessCurrentStage.Finished;
+                    }
+                default:
+                    return ProcessCurrentStage.Finished;
             }
         }
     }

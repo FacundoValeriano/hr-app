@@ -26,6 +26,7 @@ import { Community } from 'src/entities/community';
 import { CandidateProfile } from 'src/entities/Candidate-Profile';
 import { RejectionReasonsHrEnum } from 'src/entities/enums/rejection-reasons-hr.enum';
 import { replaceAccent } from 'src/app/helpers/string-helpers';
+import { ProcessCurrentStageEnum } from 'src/entities/enums/process-current-stage';
 
 
 @Component({
@@ -39,6 +40,7 @@ export class ProcessesComponent implements OnInit {
 
   @ViewChild('dropdown') nameDropdown;
   @ViewChild('dropdownStatus') statusDropdown;
+  @ViewChild('dropdownCurrentStage') currentStageDropdown;
 
   @ViewChild('processCarousel') processCarousel;
   @ViewChild(CandidateAddComponent) candidateAdd: CandidateAddComponent;
@@ -52,6 +54,7 @@ export class ProcessesComponent implements OnInit {
 
   searchValue = '';
   searchValueStatus = '';
+  searchValueCurrentStage = '';
   listOfSearchProcesses = [];
   listOfDisplayData = [...this.filteredProcesses];
 
@@ -76,6 +79,7 @@ export class ProcessesComponent implements OnInit {
   profileList: any[];
 
   statusList: any[];
+  currentStageList: any[];
 
   emptyCandidate: Candidate;
   emptyConsultant: Consultant;
@@ -100,6 +104,7 @@ export class ProcessesComponent implements OnInit {
     private globals: Globals) {
     this.profileList = globals.profileList;
     this.statusList = globals.processStatusList;
+    this.currentStageList = globals.processCurrentStageList;
   }
 
   ngOnInit() {
@@ -212,7 +217,9 @@ export class ProcessesComponent implements OnInit {
     return this.statusList.find(st => st.id === status).name;
   }
 
-
+  getCurrentStage(cr: number): string {
+    return this.currentStageList.find(st => st.id === cr).name;
+  }
 
   showApproveProcessConfirm(processID: number): void {
     let procesToApprove: Process = this.filteredProcesses.find(p => p.id == processID);
@@ -296,6 +303,7 @@ export class ProcessesComponent implements OnInit {
 
   resetStatus(): void {
     this.searchValueStatus = '';
+    this.searchValueCurrentStage = '';
     this.searchStatus();
   }
 
@@ -320,6 +328,17 @@ export class ProcessesComponent implements OnInit {
     this.listOfDisplayData = data.sort((a, b) => (this.sortValue === 'ascend') ? (a[this.sortName] > b[this.sortName] ? 1 : -1) : (b[this.sortName] > a[this.sortName] ? 1 : -1));
     this.searchValueStatus = '';
     this.statusDropdown.nzVisible = false;
+  }
+
+  searchCurrentStage(): void {
+    const filterFunc = (item) => {
+      return (this.listOfSearchProcesses.length ? this.listOfSearchProcesses.some(p => item.currentStage.indexOf(p) !== -1) : true) &&
+        (item.currentStage === this.searchValueCurrentStage)
+    };
+    const data = this.filteredProcesses.filter(item => filterFunc(item));
+    this.listOfDisplayData = data.sort((a, b) => (this.sortValue === 'ascend') ? (a[this.sortName] > b[this.sortName] ? 1 : -1) : (b[this.sortName] > a[this.sortName] ? 1 : -1));
+    this.searchValueCurrentStage = '';
+    this.currentStageDropdown.nzVisible = false;
   }
 
   searchProfile(searchedProfile: number) {
@@ -571,6 +590,7 @@ export class ProcessesComponent implements OnInit {
       startDate: new Date(),
       endDate: null,
       status: !this.isEdit ? ProcessStatusEnum.InProgress : ProcessStatusEnum[CandidateStatusEnum[this.emptyProcess.candidate.status]],
+      currentStage: ProcessCurrentStageEnum.NA,
       candidateId: !this.isEdit ? 0 : this.emptyProcess.candidate.id,
       candidate: null,
       consultantOwnerId: 0,
@@ -672,6 +692,7 @@ export class ProcessesComponent implements OnInit {
       startDate: new Date(),
       endDate: null,
       status: ProcessStatusEnum.NA,
+      currentStage: ProcessCurrentStageEnum.NA,
       candidateId: candidate.id,
       candidate: candidate,
       consultantOwnerId: 0,

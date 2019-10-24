@@ -16,6 +16,7 @@ namespace Domain.Services.Contracts.Process
         public DateTime? EndDate { get; set; }
 
         public ProcessStatus Status { get; set; }
+        public ProcessCurrentStage CurrentStage { get; set; }
 
         public string Profile { get; set; }
 
